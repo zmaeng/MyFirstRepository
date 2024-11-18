@@ -275,8 +275,8 @@ function ScoreCalculation() {
               </tr>
             );
           })}
-          <tr style={{ backgroundColor: '#aacbe9' }}> {/* 합계 행 스타일 적용 */}
-            <td colSpan="3" className="text-center">합계</td>
+          <tr> {/* 합계 행 스타일 적용 */}
+            <td colSpan="3" className="text-center" style={{ backgroundColor: '#aacbe9' }}>합계</td>
             {showSummary ? (
               <>
                 <td className="text-center">{totalCredits}</td>
