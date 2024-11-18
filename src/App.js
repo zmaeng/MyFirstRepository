@@ -21,6 +21,7 @@ function ScoreCalculation() {
   const [selectedYear, setSelectedYear] = useState('1학년');
   const [showSummary, setShowSummary] = useState(false);
 
+  // 과목 추가 함수
   const addSubject = () => {
     setSubjects(prevSubjects => [
       ...prevSubjects,
@@ -38,12 +39,14 @@ function ScoreCalculation() {
     setShowSummary(false);
   };
 
+  // 과목 정보 업데이트 함수
   const updateSubject = (index, field, value) => {
     const updatedSubjects = [...subjects];
     updatedSubjects[index][field] = value;
     setSubjects(updatedSubjects);
   };
 
+  // 입력 유효성 검사 함수
   const validateInput = (value, max) => {
     if (isNaN(value) || value < 0 || value > max || !Number.isInteger(parseFloat(value))) {
       alert(`0에서 ${max} 사이의 정수만 입력해주세요.`);
@@ -52,12 +55,14 @@ function ScoreCalculation() {
     return true;
   };
 
+  // 입력값이 잘못되었을 경우 기본값으로 설정하는 함수
   const handleBlur = (index, field, value, max) => {
     if (!validateInput(value, max)) {
       updateSubject(index, field, 0);
     }
   };
 
+  // 선택된 항목 삭제 함수
   const handleDelete = () => {
     setSubjects(prevSubjects => {
       const updatedSubjects = prevSubjects.filter((_, index) => !selectedToDelete.includes(index));
@@ -66,6 +71,7 @@ function ScoreCalculation() {
     setShowSummary(true);
   };
 
+  // 저장 버튼 핸들러: 중복 과목 검사와 총점 제한 검사 포함
   const handleSave = () => {
     const subjectNames = subjects.map(subj => subj.name.trim()).filter(name => name !== '');
     if (subjectNames.length !== subjects.length) {
@@ -73,32 +79,46 @@ function ScoreCalculation() {
       return;
     }
 
+    // 총점 제한 검사 (0~100)
+    const invalidTotalScores = subjects.some(subj => {
+      const totalScore = subj.attendance + subj.assignment + subj.midterm + subj.final;
+      return totalScore < 0 || totalScore > 100;
+    });
+    if (invalidTotalScores) {
+      alert('과목별 총점은 0에서 100 사이여야 합니다.');
+      return;
+    }
+
+    // 'F' 학점을 제외한 중복 과목 검사
     const nonFSubjects = subjects.filter(subj => calculateGrade(subj.attendance + subj.assignment + subj.midterm + subj.final) !== 'F');
     const nonFSubjectNames = nonFSubjects.map(subj => subj.name);
     const uniqueNames = new Set(nonFSubjectNames);
 
     if (uniqueNames.size !== nonFSubjectNames.length) {
       alert('동일한 과목명이 존재합니다. 다시 확인해주세요.');
-    } else {
-      alert('저장되었습니다.');
-      const sortedSubjects = [...subjects].sort((a, b) => {
-        if (a.category < b.category) return -1;
-        if (a.category > b.category) return 1;
-        if (a.type < b.type) return -1;
-        if (a.type > b.type) return 1;
-        if (a.name < b.name) return -1;
-        if (a.name > b.name) return 1;
-        return 0;
-      });
-      setSubjects(sortedSubjects);
-      setShowSummary(true);
+      return;
     }
+
+    alert('저장되었습니다.');
+    const sortedSubjects = [...subjects].sort((a, b) => {
+      if (a.category < b.category) return -1;
+      if (a.category > b.category) return 1;
+      if (a.type < b.type) return -1;
+      if (a.type > b.type) return 1;
+      if (a.name < b.name) return -1;
+      if (a.name > b.name) return 1;
+      return 0;
+    });
+    setSubjects(sortedSubjects);
+    setShowSummary(true);
   };
 
+  // 각 과목의 총점 계산
   const totalScores = subjects.map((subj) => {
     return subj.attendance + subj.assignment + subj.midterm + subj.final;
   });
 
+  // 전체 과목에 대한 각 점수 및 학점의 총합 계산
   const totalCredits = subjects.reduce((acc, subj) => acc + subj.credits, 0);
   const totalAttendance = subjects.reduce((acc, subj) => acc + parseInt(subj.attendance), 0);
   const totalAssignment = subjects.reduce((acc, subj) => acc + parseInt(subj.assignment), 0);
@@ -148,7 +168,7 @@ function ScoreCalculation() {
             const isPass = subject.credits === 1 && totalScore >= 60;
 
             return (
-              <tr key={index} style={{ backgroundColor: grade === 'F' ? 'lightcoral' : 'white' }}>
+              <tr key={index} style={{ backgroundColor: grade === 'F' ? 'lightcoral' : 'lightblue' }}>
                 <td>
                   <select
                     className="form-select"
@@ -255,8 +275,8 @@ function ScoreCalculation() {
               </tr>
             );
           })}
-          <tr>
-            <td colSpan="3" className="text-center">합계</td>
+          <tr> {/* 합계 행 스타일 적용 */}
+            <td colSpan="3" className="text-center"  style={{ backgroundColor: '#aacbe9' }}>합계</td>
             {showSummary ? (
               <>
                 <td>{totalCredits}</td>
