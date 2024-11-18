@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './App.css';
 
 // 학점 계산 함수
 function calculateGrade(totalScore) {
@@ -46,18 +45,10 @@ function ScoreCalculation() {
     setSubjects(updatedSubjects);
   };
 
-  // 입력 유효성 검사 함수
-  const validateInput = (value, max) => {
-    if (isNaN(value) || value < 0 || value > max || !Number.isInteger(parseFloat(value))) {
-      alert(`0에서 ${max} 사이의 정수만 입력해주세요.`);
-      return false;
-    }
-    return true;
-  };
-
   // 입력값이 잘못되었을 경우 기본값으로 설정하는 함수
   const handleBlur = (index, field, value, max) => {
-    if (!validateInput(value, max)) {
+    if (isNaN(value) || value < 0 || value > max || !Number.isInteger(parseFloat(value))) {
+      alert(`0에서 ${max} 사이의 정수만 입력해주세요.`);
       updateSubject(index, field, 0);
     }
   };
@@ -79,7 +70,6 @@ function ScoreCalculation() {
       return;
     }
 
-    // 총점 제한 검사 (0~100)
     const invalidTotalScores = subjects.some(subj => {
       const totalScore = subj.attendance + subj.assignment + subj.midterm + subj.final;
       return totalScore < 0 || totalScore > 100;
@@ -89,7 +79,6 @@ function ScoreCalculation() {
       return;
     }
 
-    // 'F' 학점을 제외한 중복 과목 검사
     const nonFSubjects = subjects.filter(subj => calculateGrade(subj.attendance + subj.assignment + subj.midterm + subj.final) !== 'F');
     const nonFSubjectNames = nonFSubjects.map(subj => subj.name);
     const uniqueNames = new Set(nonFSubjectNames);
@@ -113,12 +102,7 @@ function ScoreCalculation() {
     setShowSummary(true);
   };
 
-  // 각 과목의 총점 계산
-  const totalScores = subjects.map((subj) => {
-    return subj.attendance + subj.assignment + subj.midterm + subj.final;
-  });
-
-  // 전체 과목에 대한 각 점수 및 학점의 총합 계산
+  const totalScores = subjects.map(subj => subj.attendance + subj.assignment + subj.midterm + subj.final);
   const totalCredits = subjects.reduce((acc, subj) => acc + subj.credits, 0);
   const totalAttendance = subjects.reduce((acc, subj) => acc + parseInt(subj.attendance), 0);
   const totalAssignment = subjects.reduce((acc, subj) => acc + parseInt(subj.assignment), 0);
@@ -144,21 +128,21 @@ function ScoreCalculation() {
         <button className="btn btn-success" onClick={handleSave}>저장</button>
         <button className="btn btn-danger" onClick={handleDelete}>삭제</button>
       </div>
-      <table className="table table-bordered text-center"> {/* 모든 셀을 가운데 정렬 */}
+      <table className="table table-bordered text-center">
         <thead className="table-dark">
           <tr>
-            <th className="text-center">이수</th>
-            <th className="text-center">필수</th>
-            <th>과목명</th> {/* 과목명만 좌측 정렬 */}
-            <th className="text-center">학점</th>
-            <th className="text-center">출석점수</th>
-            <th className="text-center">과제점수</th>
-            <th className="text-center">중간고사</th>
-            <th className="text-center">기말고사</th>
-            <th className="text-center">총점</th>
-            <th className="text-center">평균</th>
-            <th className="text-center">성적</th>
-            <th className="text-center">삭제</th>
+            <th>이수</th>
+            <th>필수</th>
+            <th>과목명</th>
+            <th>학점</th>
+            <th>출석점수</th>
+            <th>과제점수</th>
+            <th>중간고사</th>
+            <th>기말고사</th>
+            <th>총점</th>
+            <th>평균</th>
+            <th>성적</th>
+            <th>삭제</th>
           </tr>
         </thead>
         <tbody>
@@ -168,125 +152,64 @@ function ScoreCalculation() {
             const isPass = subject.credits === 1 && totalScore >= 60;
 
             return (
-              <tr key={index} style={{ backgroundColor: grade === 'F' ? 'lightcoral' : 'lightblue' }}>
-                <td className="text-center">
-                  <select
-                    className="form-select"
-                    value={subject.category}
-                    onChange={(e) => updateSubject(index, 'category', e.target.value)}
-                  >
+              <tr key={index}>
+                <td>
+                  <select className="form-select" value={subject.category} onChange={(e) => updateSubject(index, 'category', e.target.value)}>
                     <option value="교양">교양</option>
                     <option value="전공">전공</option>
                   </select>
                 </td>
-                <td className="text-center">
-                  <select
-                    className="form-select"
-                    value={subject.type}
-                    onChange={(e) => updateSubject(index, 'type', e.target.value)}
-                  >
+                <td>
+                  <select className="form-select" value={subject.type} onChange={(e) => updateSubject(index, 'type', e.target.value)}>
                     <option value="필수">필수</option>
                     <option value="선택">선택</option>
                   </select>
                 </td>
                 <td>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={subject.name}
-                    onChange={(e) => updateSubject(index, 'name', e.target.value)}
-                  />
+                  <input type="text" className="form-control" value={subject.name} onChange={(e) => updateSubject(index, 'name', e.target.value)} />
                 </td>
-                <td className="text-center">
-                  <input
-                    type="number"
-                    className="form-control text-center"
-                    value={subject.credits}
-                    onChange={(e) => updateSubject(index, 'credits', parseInt(e.target.value))}
-                    min="1"
-                    max="3"
-                    step="1"
-                  />
+                <td>
+                  <input type="number" className="form-control text-center" value={subject.credits} onChange={(e) => updateSubject(index, 'credits', parseInt(e.target.value))} min="1" max="3" />
                 </td>
-                <td className="text-center">
-                  <input
-                    type="number"
-                    className="form-control text-center"
-                    value={subject.attendance}
-                    onChange={(e) => updateSubject(index, 'attendance', parseInt(e.target.value))}
-                    min="0"
-                    max="20"
-                    step="1"
-                    onBlur={(e) => handleBlur(index, 'attendance', e.target.value, 20)}
-                  />
+                <td>
+                  <input type="number" className="form-control text-center" value={subject.attendance} onChange={(e) => updateSubject(index, 'attendance', parseInt(e.target.value))} min="0" max="20" onBlur={(e) => handleBlur(index, 'attendance', e.target.value, 20)} />
                 </td>
-                <td className="text-center">
-                  <input
-                    type="number"
-                    className="form-control text-center"
-                    value={subject.assignment}
-                    onChange={(e) => updateSubject(index, 'assignment', parseInt(e.target.value))}
-                    min="0"
-                    max="20"
-                    step="1"
-                    onBlur={(e) => handleBlur(index, 'assignment', e.target.value, 20)}
-                  />
+                <td>
+                  <input type="number" className="form-control text-center" value={subject.assignment} onChange={(e) => updateSubject(index, 'assignment', parseInt(e.target.value))} min="0" max="20" onBlur={(e) => handleBlur(index, 'assignment', e.target.value, 20)} />
                 </td>
-                <td className="text-center">
-                  <input
-                    type="number"
-                    className="form-control text-center"
-                    value={subject.midterm}
-                    onChange={(e) => updateSubject(index, 'midterm', parseInt(e.target.value))}
-                    min="0"
-                    max="30"
-                    step="1"
-                    onBlur={(e) => handleBlur(index, 'midterm', e.target.value, 30)}
-                  />
+                <td>
+                  <input type="number" className="form-control text-center" value={subject.midterm} onChange={(e) => updateSubject(index, 'midterm', parseInt(e.target.value))} min="0" max="30" onBlur={(e) => handleBlur(index, 'midterm', e.target.value, 30)} />
                 </td>
-                <td className="text-center">
-                  <input
-                    type="number"
-                    className="form-control text-center"
-                    value={subject.final}
-                    onChange={(e) => updateSubject(index, 'final', parseInt(e.target.value))}
-                    min="0"
-                    max="30"
-                    step="1"
-                    onBlur={(e) => handleBlur(index, 'final', e.target.value, 30)}
-                  />
+                <td>
+                  <input type="number" className="form-control text-center" value={subject.final} onChange={(e) => updateSubject(index, 'final', parseInt(e.target.value))} min="0" max="30" onBlur={(e) => handleBlur(index, 'final', e.target.value, 30)} />
                 </td>
-                <td className="text-center">{totalScore}</td>
-                <td className="text-center"></td>
-                <td className="text-center" style={{ color: grade === 'F' ? 'red' : 'black' }}>{subject.credits === 1 ? (isPass ? 'P' : 'NP') : grade}</td>
-                <td className="text-center">
-                  <input
-                    type="checkbox"
-                    className="form-check-input"
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setSelectedToDelete([...selectedToDelete, index]);
-                      } else {
-                        setSelectedToDelete(selectedToDelete.filter(i => i !== index));
-                      }
-                    }}
-                  />
+                <td>{totalScore}</td>
+                <td></td>
+                <td style={{ color: grade === 'F' ? 'red' : 'black' }}>{subject.credits === 1 ? (isPass ? 'P' : 'NP') : grade}</td>
+                <td>
+                  <input type="checkbox" className="form-check-input" onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedToDelete([...selectedToDelete, index]);
+                    } else {
+                      setSelectedToDelete(selectedToDelete.filter(i => i !== index));
+                    }
+                  }} />
                 </td>
               </tr>
             );
           })}
-          <tr> {/* 합계 행 스타일 적용 */}
+          <tr>
             <td colSpan="3" className="text-center" style={{ backgroundColor: '#aacbe9' }}>합계</td>
             {showSummary ? (
               <>
-                <td className="text-center">{totalCredits}</td>
-                <td className="text-center">{totalAttendance}</td>
-                <td className="text-center">{totalAssignment}</td>
-                <td className="text-center">{totalMidterm}</td>
-                <td className="text-center">{totalFinal}</td>
-                <td className="text-center">{totalScoreSum}</td>
-                <td className="text-center">{subjects.length > 0 ? (totalScoreSum / subjects.length).toFixed(2) : ''}</td>
-                <td className="text-center">{calculateGrade(totalScoreSum / subjects.length)}</td>
+                <td>{totalCredits}</td>
+                <td>{totalAttendance}</td>
+                <td>{totalAssignment}</td>
+                <td>{totalMidterm}</td>
+                <td>{totalFinal}</td>
+                <td>{totalScoreSum}</td>
+                <td>{subjects.length > 0 ? (totalScoreSum / subjects.length).toFixed(2) : ''}</td>
+                <td>{calculateGrade(totalScoreSum / subjects.length)}</td>
               </>
             ) : (
               <td colSpan="8"></td>
