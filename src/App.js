@@ -147,18 +147,18 @@ function ScoreCalculation() {
       <table className="table table-bordered text-center"> {/* 모든 셀을 가운데 정렬 */}
         <thead className="table-dark">
           <tr>
-            <th>이수</th>
-            <th>필수</th>
-            <th>과목명</th>
-            <th>학점</th>
-            <th>출석점수</th>
-            <th>과제점수</th>
-            <th>중간고사</th>
-            <th>기말고사</th>
-            <th>총점</th>
-            <th>평균</th>
-            <th>성적</th>
-            <th>삭제</th>
+            <th className="text-center">이수</th>
+            <th className="text-center">필수</th>
+            <th>과목명</th> {/* 과목명만 좌측 정렬 */}
+            <th className="text-center">학점</th>
+            <th className="text-center">출석점수</th>
+            <th className="text-center">과제점수</th>
+            <th className="text-center">중간고사</th>
+            <th className="text-center">기말고사</th>
+            <th className="text-center">총점</th>
+            <th className="text-center">평균</th>
+            <th className="text-center">성적</th>
+            <th className="text-center">삭제</th>
           </tr>
         </thead>
         <tbody>
@@ -169,7 +169,7 @@ function ScoreCalculation() {
 
             return (
               <tr key={index} style={{ backgroundColor: grade === 'F' ? 'lightcoral' : 'lightblue' }}>
-                <td>
+                <td className="text-center">
                   <select
                     className="form-select"
                     value={subject.category}
@@ -179,7 +179,7 @@ function ScoreCalculation() {
                     <option value="전공">전공</option>
                   </select>
                 </td>
-                <td>
+                <td className="text-center">
                   <select
                     className="form-select"
                     value={subject.type}
@@ -197,10 +197,10 @@ function ScoreCalculation() {
                     onChange={(e) => updateSubject(index, 'name', e.target.value)}
                   />
                 </td>
-                <td>
+                <td className="text-center">
                   <input
                     type="number"
-                    className="form-control"
+                    className="form-control text-center"
                     value={subject.credits}
                     onChange={(e) => updateSubject(index, 'credits', parseInt(e.target.value))}
                     min="1"
@@ -208,10 +208,10 @@ function ScoreCalculation() {
                     step="1"
                   />
                 </td>
-                <td>
+                <td className="text-center">
                   <input
                     type="number"
-                    className="form-control"
+                    className="form-control text-center"
                     value={subject.attendance}
                     onChange={(e) => updateSubject(index, 'attendance', parseInt(e.target.value))}
                     min="0"
@@ -220,10 +220,10 @@ function ScoreCalculation() {
                     onBlur={(e) => handleBlur(index, 'attendance', e.target.value, 20)}
                   />
                 </td>
-                <td>
+                <td className="text-center">
                   <input
                     type="number"
-                    className="form-control"
+                    className="form-control text-center"
                     value={subject.assignment}
                     onChange={(e) => updateSubject(index, 'assignment', parseInt(e.target.value))}
                     min="0"
@@ -232,10 +232,10 @@ function ScoreCalculation() {
                     onBlur={(e) => handleBlur(index, 'assignment', e.target.value, 20)}
                   />
                 </td>
-                <td>
+                <td className="text-center">
                   <input
                     type="number"
-                    className="form-control"
+                    className="form-control text-center"
                     value={subject.midterm}
                     onChange={(e) => updateSubject(index, 'midterm', parseInt(e.target.value))}
                     min="0"
@@ -244,10 +244,10 @@ function ScoreCalculation() {
                     onBlur={(e) => handleBlur(index, 'midterm', e.target.value, 30)}
                   />
                 </td>
-                <td>
+                <td className="text-center">
                   <input
                     type="number"
-                    className="form-control"
+                    className="form-control text-center"
                     value={subject.final}
                     onChange={(e) => updateSubject(index, 'final', parseInt(e.target.value))}
                     min="0"
@@ -256,10 +256,10 @@ function ScoreCalculation() {
                     onBlur={(e) => handleBlur(index, 'final', e.target.value, 30)}
                   />
                 </td>
-                <td>{totalScore}</td>
-                <td></td>
-                <td style={{ color: grade === 'F' ? 'red' : 'black' }}>{subject.credits === 1 ? (isPass ? 'P' : 'NP') : grade}</td>
-                <td>
+                <td className="text-center">{totalScore}</td>
+                <td className="text-center"></td>
+                <td className="text-center" style={{ color: grade === 'F' ? 'red' : 'black' }}>{subject.credits === 1 ? (isPass ? 'P' : 'NP') : grade}</td>
+                <td className="text-center">
                   <input
                     type="checkbox"
                     className="form-check-input"
@@ -275,18 +275,18 @@ function ScoreCalculation() {
               </tr>
             );
           })}
-          <tr> {/* 합계 행 스타일 적용 */}
-            <td colSpan="3" className="text-center"  style={{ backgroundColor: '#aacbe9' }}>합계</td>
+          <tr style={{ backgroundColor: '#aacbe9' }}> {/* 합계 행 스타일 적용 */}
+            <td colSpan="3" className="text-center">합계</td>
             {showSummary ? (
               <>
-                <td>{totalCredits}</td>
-                <td>{totalAttendance}</td>
-                <td>{totalAssignment}</td>
-                <td>{totalMidterm}</td>
-                <td>{totalFinal}</td>
-                <td>{totalScoreSum}</td>
-                <td>{subjects.length > 0 ? (totalScoreSum / subjects.length).toFixed(2) : ''}</td>
-                <td>{calculateGrade(totalScoreSum / subjects.length)}</td>
+                <td className="text-center">{totalCredits}</td>
+                <td className="text-center">{totalAttendance}</td>
+                <td className="text-center">{totalAssignment}</td>
+                <td className="text-center">{totalMidterm}</td>
+                <td className="text-center">{totalFinal}</td>
+                <td className="text-center">{totalScoreSum}</td>
+                <td className="text-center">{subjects.length > 0 ? (totalScoreSum / subjects.length).toFixed(2) : ''}</td>
+                <td className="text-center">{calculateGrade(totalScoreSum / subjects.length)}</td>
               </>
             ) : (
               <td colSpan="8"></td>
