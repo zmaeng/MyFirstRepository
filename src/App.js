@@ -19,22 +19,22 @@ function ScoreCalculation() {
   const [selectedToDelete, setSelectedToDelete] = useState([]);
   const [selectedYear, setSelectedYear] = useState('1학년');
   const [showSummary, setShowSummary] = useState(false);
+  const [newSubjectNames, setNewSubjectNames] = useState([]);
 
   // 과목 추가 함수
   const addSubject = () => {
-    setSubjects(prevSubjects => [
-      ...prevSubjects,
-      {
-        category: '교양',
-        type: '선택',
-        name: '',
-        credits: 1,
-        attendance: 0,
-        assignment: 0,
-        midterm: 0,
-        final: 0,
-      },
-    ]);
+    const newSubject = {
+      category: '교양',
+      type: '선택',
+      name: '',
+      credits: 1,
+      attendance: 0,
+      assignment: 0,
+      midterm: 0,
+      final: 0,
+    };
+    setSubjects(prevSubjects => [...prevSubjects, newSubject]);
+    setNewSubjectNames(prevNames => [...prevNames, newSubject.name]);
     setShowSummary(false);
   };
 
@@ -55,11 +55,29 @@ function ScoreCalculation() {
 
   // 선택된 항목 삭제 함수
   const handleDelete = () => {
+    if (selectedToDelete.length === 0) {
+      alert('삭제할 항목을 선택해주세요.');
+      return;
+    }
+    const deletedSubjects = selectedToDelete.map(index => subjects[index].name || '(이름 없음)');
     setSubjects(prevSubjects => {
       const updatedSubjects = prevSubjects.filter((_, index) => !selectedToDelete.includes(index));
       return updatedSubjects;
     });
+    alert(`${deletedSubjects.join(', ')} 과목이 삭제되었습니다.`);
+    setSelectedToDelete([]); // 체크박스 선택 초기화
     setShowSummary(true);
+  };
+
+  // 체크박스 onChange 핸들러
+  const handleCheckboxChange = (index) => {
+    setSelectedToDelete(prev => {
+      if (prev.includes(index)) {
+        return prev.filter(i => i !== index);
+      } else {
+        return [...prev, index];
+      }
+    });
   };
 
   // 저장 버튼 핸들러: 중복 과목 검사와 총점 제한 검사 포함
@@ -88,7 +106,9 @@ function ScoreCalculation() {
       return;
     }
 
-    alert('저장되었습니다.');
+    alert(`${newSubjectNames.join(', ')} 과목이 저장되었습니다.`);
+    setNewSubjectNames([]); // 새로 추가된 과목명 초기화
+
     const sortedSubjects = [...subjects].sort((a, b) => {
       if (a.category < b.category) return -1;
       if (a.category > b.category) return 1;
@@ -109,25 +129,26 @@ function ScoreCalculation() {
   const totalMidterm = subjects.reduce((acc, subj) => acc + parseInt(subj.midterm), 0);
   const totalFinal = subjects.reduce((acc, subj) => acc + parseInt(subj.final), 0);
   const totalScoreSum = totalScores.reduce((acc, score) => acc + score, 0);
+  const averageScore = subjects.length > 0 ? (totalScoreSum / subjects.length).toFixed(2) : '';
 
   return (
     <div className="container mt-4">
-  <h1 className="text-center mb-4">Front-end 과제</h1>
-  <div className="mb-3 d-flex justify-content-between align-items-center">
-    <label className="form-label mb-0">
-      학년 선택:
-      <select className="form-select w-auto d-inline-block ms-2" value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)}>
-        <option value="1학년">1학년</option>
-        <option value="2학년">2학년</option>
-        <option value="3학년">3학년</option>
-      </select>
-    </label>
-    <div className="d-flex gap-2">
-      <button className="btn btn-primary" onClick={addSubject}>추가</button>
-      <button className="btn btn-success" onClick={handleSave}>저장</button>
-      <button className="btn btn-danger" onClick={handleDelete}>삭제</button>
-    </div>
-  </div>
+      <h1 className="text-center mb-4">Front-end 과제</h1>
+      <div className="mb-3 d-flex justify-content-between align-items-center">
+        <label className="form-label mb-0">
+          학년 선택:
+          <select className="form-select w-auto d-inline-block ms-2" value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)}>
+            <option value="1학년">1학년</option>
+            <option value="2학년">2학년</option>
+            <option value="3학년">3학년</option>
+          </select>
+        </label>
+        <div className="d-flex gap-2">
+          <button className="btn btn-primary" onClick={addSubject}>추가</button>
+          <button className="btn btn-success" onClick={handleSave}>저장</button>
+          <button className="btn btn-danger" onClick={handleDelete}>삭제</button>
+        </div>
+      </div>
 
       <table className="table table-bordered text-center">
         <thead className="table-dark">
@@ -188,18 +209,17 @@ function ScoreCalculation() {
                 <td></td>
                 <td style={{ color: grade === 'F' ? 'red' : 'black' }}>{subject.credits === 1 ? (isPass ? 'P' : 'NP') : grade}</td>
                 <td>
-                  <input type="checkbox" className="form-check-input" onChange={(e) => {
-                    if (e.target.checked) {
-                      setSelectedToDelete([...selectedToDelete, index]);
-                    } else {
-                      setSelectedToDelete(selectedToDelete.filter(i => i !== index));
-                    }
-                  }} />
+                  <input
+                    type="checkbox"
+                    className="form-check-input"
+                    checked={selectedToDelete.includes(index)}
+                    onChange={() => handleCheckboxChange(index)}
+                  />
                 </td>
               </tr>
             );
           })}
-          <tr className="table-primary">
+          <tr className="table-primary fw-bold">
             <td colSpan="3">합계</td>
             {showSummary ? (
               <>
@@ -209,8 +229,8 @@ function ScoreCalculation() {
                 <td>{totalMidterm}</td>
                 <td>{totalFinal}</td>
                 <td>{totalScoreSum}</td>
-                <td>{subjects.length > 0 ? (totalScoreSum / subjects.length).toFixed(2) : ''}</td>
-                <td>{calculateGrade(totalScoreSum / subjects.length)}</td>
+                <td>{averageScore}</td>
+                <td>{calculateGrade(averageScore)}</td>
               </>
             ) : (
               <td colSpan="8"></td>
