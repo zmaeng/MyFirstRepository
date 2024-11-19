@@ -19,7 +19,6 @@ function ScoreCalculation() {
   const [selectedToDelete, setSelectedToDelete] = useState([]);
   const [selectedYear, setSelectedYear] = useState('1학년');
   const [showSummary, setShowSummary] = useState(false);
-  const [newSubjectNames, setNewSubjectNames] = useState([]);
 
   // 과목 추가 함수
   const addSubject = () => {
@@ -34,15 +33,16 @@ function ScoreCalculation() {
       final: 0,
     };
     setSubjects(prevSubjects => [...prevSubjects, newSubject]);
-    setNewSubjectNames(prevNames => [...prevNames, newSubject.name]);
     setShowSummary(false);
   };
 
   // 과목 정보 업데이트 함수
   const updateSubject = (index, field, value) => {
-    const updatedSubjects = [...subjects];
-    updatedSubjects[index][field] = value;
-    setSubjects(updatedSubjects);
+    setSubjects(prevSubjects => {
+      const updatedSubjects = [...prevSubjects];
+      updatedSubjects[index][field] = value;
+      return updatedSubjects;
+    });
   };
 
   // 입력값이 잘못되었을 경우 기본값으로 설정하는 함수
@@ -60,10 +60,7 @@ function ScoreCalculation() {
       return;
     }
     const deletedSubjects = selectedToDelete.map(index => subjects[index].name || '(이름 없음)');
-    setSubjects(prevSubjects => {
-      const updatedSubjects = prevSubjects.filter((_, index) => !selectedToDelete.includes(index));
-      return updatedSubjects;
-    });
+    setSubjects(prevSubjects => prevSubjects.filter((_, index) => !selectedToDelete.includes(index)));
     alert(`${deletedSubjects.join(', ')} 과목이 삭제되었습니다.`);
     setSelectedToDelete([]); // 체크박스 선택 초기화
     setShowSummary(true);
@@ -71,13 +68,7 @@ function ScoreCalculation() {
 
   // 체크박스 onChange 핸들러
   const handleCheckboxChange = (index) => {
-    setSelectedToDelete(prev => {
-      if (prev.includes(index)) {
-        return prev.filter(i => i !== index);
-      } else {
-        return [...prev, index];
-      }
-    });
+    setSelectedToDelete(prev => prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index]);
   };
 
   // 저장 버튼 핸들러: 중복 과목 검사와 총점 제한 검사 포함
@@ -98,36 +89,27 @@ function ScoreCalculation() {
     }
 
     const nonFSubjects = subjects.filter(subj => calculateGrade(subj.attendance + subj.assignment + subj.midterm + subj.final) !== 'F');
-    const nonFSubjectNames = nonFSubjects.map(subj => subj.name);
-    const uniqueNames = new Set(nonFSubjectNames);
-
-    if (uniqueNames.size !== nonFSubjectNames.length) {
+    const uniqueNames = new Set(nonFSubjects.map(subj => subj.name));
+    if (uniqueNames.size !== nonFSubjects.length) {
       alert('동일한 과목명이 존재합니다. 다시 확인해주세요.');
       return;
     }
 
-    alert(`${newSubjectNames.join(', ')} 과목이 저장되었습니다.`);
-    setNewSubjectNames([]); // 새로 추가된 과목명 초기화
-
-    const sortedSubjects = [...subjects].sort((a, b) => {
-      if (a.category < b.category) return -1;
-      if (a.category > b.category) return 1;
-      if (a.type < b.type) return -1;
-      if (a.type > b.type) return 1;
-      if (a.name < b.name) return -1;
-      if (a.name > b.name) return 1;
-      return 0;
-    });
-    setSubjects(sortedSubjects);
+    alert(`${subjectNames.join(', ')} 과목이 저장되었습니다.`);
+    setSubjects(subjects.sort((a, b) => {
+      if (a.category !== b.category) return a.category.localeCompare(b.category);
+      if (a.type !== b.type) return a.type.localeCompare(b.type);
+      return a.name.localeCompare(b.name);
+    }));
     setShowSummary(true);
   };
 
   const totalScores = subjects.map(subj => subj.attendance + subj.assignment + subj.midterm + subj.final);
   const totalCredits = subjects.reduce((acc, subj) => acc + subj.credits, 0);
-  const totalAttendance = subjects.reduce((acc, subj) => acc + parseInt(subj.attendance), 0);
-  const totalAssignment = subjects.reduce((acc, subj) => acc + parseInt(subj.assignment), 0);
-  const totalMidterm = subjects.reduce((acc, subj) => acc + parseInt(subj.midterm), 0);
-  const totalFinal = subjects.reduce((acc, subj) => acc + parseInt(subj.final), 0);
+  const totalAttendance = subjects.reduce((acc, subj) => acc + subj.attendance, 0);
+  const totalAssignment = subjects.reduce((acc, subj) => acc + subj.assignment, 0);
+  const totalMidterm = subjects.reduce((acc, subj) => acc + subj.midterm, 0);
+  const totalFinal = subjects.reduce((acc, subj) => acc + subj.final, 0);
   const totalScoreSum = totalScores.reduce((acc, score) => acc + score, 0);
   const averageScore = subjects.length > 0 ? (totalScoreSum / subjects.length).toFixed(2) : '';
 
