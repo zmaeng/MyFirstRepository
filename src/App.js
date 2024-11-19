@@ -112,22 +112,23 @@ function ScoreCalculation() {
 
   return (
     <div className="container mt-4">
-      <h1 className="text-center mb-4">Front-end 과제</h1>
-      <div className="mb-3">
-        <label className="form-label">
-          학년 선택:
-          <select className="form-select w-auto d-inline-block ms-2" value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)}>
-            <option value="1학년">1학년</option>
-            <option value="2학년">2학년</option>
-            <option value="3학년">3학년</option>
-          </select>
-        </label>
-      </div>
-      <div className="mb-3 d-flex gap-2">
-        <button className="btn btn-primary" onClick={addSubject}>추가</button>
-        <button className="btn btn-success" onClick={handleSave}>저장</button>
-        <button className="btn btn-danger" onClick={handleDelete}>삭제</button>
-      </div>
+  <h1 className="text-center mb-4">Front-end 과제</h1>
+  <div className="mb-3 d-flex justify-content-between align-items-center">
+    <label className="form-label mb-0">
+      학년 선택:
+      <select className="form-select w-auto d-inline-block ms-2" value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)}>
+        <option value="1학년">1학년</option>
+        <option value="2학년">2학년</option>
+        <option value="3학년">3학년</option>
+      </select>
+    </label>
+    <div className="d-flex gap-2">
+      <button className="btn btn-primary" onClick={addSubject}>추가</button>
+      <button className="btn btn-success" onClick={handleSave}>저장</button>
+      <button className="btn btn-danger" onClick={handleDelete}>삭제</button>
+    </div>
+  </div>
+
       <table className="table table-bordered text-center">
         <thead className="table-dark">
           <tr>
@@ -152,7 +153,7 @@ function ScoreCalculation() {
             const isPass = subject.credits === 1 && totalScore >= 60;
 
             return (
-              <tr key={index}>
+              <tr key={index} className={index % 2 === 0 ? 'table-light' : 'table-secondary'}>
                 <td>
                   <select className="form-select" value={subject.category} onChange={(e) => updateSubject(index, 'category', e.target.value)}>
                     <option value="교양">교양</option>
@@ -198,8 +199,8 @@ function ScoreCalculation() {
               </tr>
             );
           })}
-          <tr>
-            <td colSpan="3" className="text-center" style={{ backgroundColor: '#aacbe9' }}>합계</td>
+          <tr className="table-primary">
+            <td colSpan="3">합계</td>
             {showSummary ? (
               <>
                 <td>{totalCredits}</td>
