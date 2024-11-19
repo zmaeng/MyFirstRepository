@@ -12,6 +12,4 @@
 - Git: 버전 관리
 
 ## 실행 방법(아래 도메인에 접속하여 바로 실행할 수 있습니다.)
-https://score-calculation-sxla3q422-jaemaengs-projects.vercel.app/
 https://score-calculation-git-main-jaemaengs-projects.vercel.app/
-https://score-calculation-jaemaengs-projects.vercel.app/
